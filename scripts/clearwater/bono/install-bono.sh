@@ -5,9 +5,10 @@ ctx logger debug "${COMMAND}"
 ctx logger info "Configure the APT software source"
 if [ ! -f /etc/apt/sources.list.d/clearwater.list ]
   then
-    echo 'deb http://repo.cw-ngv.com/archive/repo84 binary/' | sudo tee --append /etc/apt/sources.list.d/clearwater.list
+    echo 'deb file:///root/cw-repo/mirror/repo.cw-ngv.com/archive/repo84/binary /' | sudo tee --append /etc/apt/sources.list.d/clearwater.list
     curl -L http://repo.cw-ngv.com/repo_key | sudo apt-key add -
 fi
+sudo sed -i 's/http:\/\/nova.clouds.archive.ubuntu.com\/ubuntu\//http:\/\/ubuntu.cs.nctu.edu.tw\/ubuntu\//g' /etc/apt/sources.list
 sudo apt-get update
 
 ctx logger info "Installing bono packages and other clearwater packages"
