@@ -106,7 +106,7 @@ agents_user: 'cloud' 									# SSH user used to connect to agent VM
 
 Launch the deployment of cloudify manager server : 
 ```
- cfy bootstrap --install-plugins -p openstack-manager-blueprint.yaml -i openstack-manager-blueprint-inputs.yaml
+cfy bootstrap --install-plugins -p openstack-manager-blueprint.yaml -i openstack-manager-blueprint-inputs.yaml
 ```
 
 During the deployment many **logs** appears on console :
