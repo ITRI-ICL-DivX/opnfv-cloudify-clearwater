@@ -157,6 +157,16 @@ node_templates:
       - target: homer_security_group
         type: cloudify.openstack.server_connected_to_security_group
 
+  ralf_host:
+    type: clearwater.nodes.MonitoredServer
+    instances:
+      deploy: 1
+    relationships:
+      - target: base_security_group
+        type: cloudify.openstack.server_connected_to_security_group
+      
+      - target: ralf_security_group
+        type: cloudify.openstack.server_connected_to_security_group
 
   bind_host:
     type: clearwater.nodes.MonitoredServer
@@ -242,6 +252,16 @@ node_templates:
         target: homer_host
       - type: app_connected_to_bind
         target: bind
+        
+  ralf:
+    type: clearwater.nodes.ralf
+    properties:
+      private_domain: clearwater.local
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: ralf_host
+      - type: app_connected_to_bind
+        target: bind
 
   bind:
     type: clearwater.infra.bind
@@ -276,6 +296,8 @@ node_templates:
         - remote_ip_prefix: 0.0.0.0/0
           port: 161
           protocol: udp
+          port: 162
+          protocol: udp
 
   bono_security_group:
     type: cloudify.openstack.nodes.SecurityGroup
@@ -302,6 +324,9 @@ node_templates:
           protocol: udp
         - remote_ip_prefix: 0.0.0.0/0
           port: 6669
+        - remote_ip_prefix: 0.0.0.0/0
+          port: 5058
+          protocol: tcp
 
   internal_sip_security_group:
     type: cloudify.openstack.nodes.SecurityGroup
@@ -326,10 +351,24 @@ node_templates:
       rules:
         - remote_ip_prefix: 0.0.0.0/0
           port: 11211
+          protocol: tcp
         - remote_ip_prefix: 0.0.0.0/0
           port: 7253
+          protocol: tcp
+        - remote_ip_prefix: 0.0.0.0/0
+          port: 7000
+          protocol: tcp
+        - remote_ip_prefix: 0.0.0.0/0
+          port: 9160
+          protocol: tcp
+        - remote_ip_prefix: 0.0.0.0/0
+          port: 9888
+          protocol: tcp
         - remote_ip_prefix: 0.0.0.0/0
           port: 6666
+        - remote_ip_prefix: 0.0.0.0/0
+          port: 443
+          protocol: tcp
 
   homestead_security_group:
     type: cloudify.openstack.nodes.SecurityGroup
@@ -362,6 +401,24 @@ node_templates:
         - remote_ip_prefix: 0.0.0.0/0
           port: 6665
 
+  ralf_security_group:
+    type: cloudify.openstack.nodes.SecurityGroup
+    properties: 
+      security_group:
+        name: clearwater-sg_ralf
+        description: memcached Chronos REST
+      rules:
+        - remote_ip_prefix: 0.0.0.0/0
+          port: 11211
+          protocol: tcp
+        - remote_ip_prefix: 0.0.0.0/0
+          port: 7253
+          protocol: tcp
+        - remote_ip_prefix: 0.0.0.0/0
+          port: 10888
+          protocol: tcp
+  
+          
   ellis_security_group:
     type: cloudify.openstack.nodes.SecurityGroup
     properties: 
@@ -406,6 +463,24 @@ node_templates:
       floatingip:
         floating_network_name: { get_input: external_network_name }
 
+ groups:
+  clearwater_hosts:
+    members: [sprout_host]
+    policies:
+      mem_scale_policy:
+        type: cloudify.policies.types.threshold
+        properties:
+          service: cpu.total.user
+          threshold: 90
+        triggers:
+          scale_trigger:
+            type: cloudify.policies.triggers.execute_workflow
+            parameters:
+              workflow: scale
+              workflow_parameters:
+                node_id: sprout
+                delta: 1
+        
 outputs:
   dns_ip:
     value: { get_attribute: [bind_floatingip, floating_ip_address] }
