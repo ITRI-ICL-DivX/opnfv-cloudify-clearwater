@@ -8,6 +8,7 @@ if [ ! -f /etc/apt/sources.list.d/clearwater.list ]
     echo 'deb http://repo.cw-ngv.com/archive/repo84 binary/' | sudo tee --append /etc/apt/sources.list.d/clearwater.list
     curl -L http://repo.cw-ngv.com/repo_key | sudo apt-key add -
 fi
+sed -i 's/http:\/\/nova.clouds.archive.ubuntu.com\/ubuntu\//http:\/\/ubuntu.cs.nctu.edu.tw\/ubuntu\//g' /etc/apt/sources.list
 sudo apt-get update
 
 ctx logger info "Installing homer packages and other clearwater packages"

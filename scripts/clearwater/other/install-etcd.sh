@@ -5,6 +5,7 @@ ctx logger debug "${COMMAND}"
 ctx logger info "Configure the APT software source"
 echo 'deb http://repo.cw-ngv.com/archive/repo84 binary/' | sudo tee --append /etc/apt/sources.list.d/clearwater.list
 curl -L http://repo.cw-ngv.com/repo_key | sudo apt-key add -
+sed -i 's/http:\/\/nova.clouds.archive.ubuntu.com\/ubuntu\//http:\/\/ubuntu.cs.nctu.edu.tw\/ubuntu\//g' /etc/apt/sources.list
 sudo apt-get update
 
 ctx logger info "Now install the software"
